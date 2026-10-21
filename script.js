@@ -223,7 +223,7 @@ function createTable(table) {
           class: 'svg-chair',
 
           // Переносим стулья на внешнюю сторону
-          cx: width / 2 + 19,
+          cx: -width / 2 - 19,
 
           cy: offset,
           r: 10
