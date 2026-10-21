@@ -49,7 +49,7 @@ const films = [
 const rub = number =>
   new Intl.NumberFormat('ru-RU').format(number) + ' ₽';
 
-/* Карточки фильмов */
+/* КАРТОЧКИ ФИЛЬМОВ */
 
 const filmRoot = document.querySelector('.films');
 
@@ -59,9 +59,11 @@ films.forEach((film, index) => {
 
   article.innerHTML = `
     <div class="poster">
-      <img src="${film.poster}"
-           alt="Постер фильма ${film.name}"
-           loading="lazy">
+      <img
+        src="${film.poster}"
+        alt="Постер фильма ${film.name}"
+        loading="lazy"
+      >
       <span>${String(index + 1).padStart(2, '0')} / 03</span>
     </div>
 
@@ -76,6 +78,7 @@ films.forEach((film, index) => {
       </div>
 
       <h3>Гастрономический сценарий</h3>
+
       <p class="hint">
         Таймкоды примерные, для демонстрации.
       </p>
@@ -103,7 +106,7 @@ films.forEach((film, index) => {
   filmRoot.appendChild(article);
 });
 
-/* Бронирование */
+/* БРОНИРОВАНИЕ */
 
 let active = 0;
 const chosen = new Set();
@@ -120,8 +123,8 @@ const message = document.querySelector('#message');
 const NS = 'http://www.w3.org/2000/svg';
 
 /*
-  Координаты рассчитаны под образец 988 × 590.
-  Внутри SVG используется система 1000 × 590.
+  Столы №1 и №8 исправлены.
+  Столы №2–7 не изменены.
 */
 
 const tables = [
@@ -135,7 +138,7 @@ const tables = [
   { id: 8, seats: 4, x: 845, y: 267, angle: -61 }
 ];
 
-// Все столы свободны, как на образце.
+// Все столы свободны, как на образце
 const occupied = new Set();
 
 films.forEach((film, index) => {
@@ -179,6 +182,7 @@ function createTable(table) {
   const width = large ? 112 : 70;
   const height = large ? 38 : 43;
 
+  // Стол
   group.appendChild(
     makeSvg('rect', {
       class: 'svg-table-body',
@@ -190,6 +194,7 @@ function createTable(table) {
     })
   );
 
+  // Номер стола
   const number = makeSvg('text', {
     class: 'svg-table-number',
     x: 0,
@@ -201,17 +206,25 @@ function createTable(table) {
   group.appendChild(number);
 
   /*
-    Стулья добавляются в координатах самого стола.
-    У четырёхместных столов — четыре кружка сбоку.
-    У двухместных — два кружка снизу.
+    ИСПРАВЛЕНИЕ ТОЛЬКО СТОЛОВ №1 И №8
+
+    №1: стулья слева, как на образце.
+    №8: стулья справа, как на образце.
+
+    Столы №2–7 работают по старой схеме.
   */
 
   if (large) {
-    [-36, -12, 12, 36].forEach(offset => {
+    const chairOffsets = [-36, -12, 12, 36];
+
+    chairOffsets.forEach(offset => {
       group.appendChild(
         makeSvg('circle', {
           class: 'svg-chair',
-          cx: -width / 2 - 19,
+
+          // Переносим стулья на внешнюю сторону
+          cx: width / 2 + 19,
+
           cy: offset,
           r: 10
         })
@@ -266,6 +279,7 @@ function buildHall() {
     'aria-label': 'Схема столов SAVORÉ'
   });
 
+  // Плавная пунктирная дуга
   svg.appendChild(
     makeSvg('path', {
       class: 'svg-arc',
@@ -309,6 +323,8 @@ function render() {
   bookButton.disabled = selected.length === 0;
 }
 
+/* ПЕРЕКЛЮЧЕНИЕ ФИЛЬМА */
+
 select.addEventListener('change', () => {
   active = Number(select.value);
   chosen.clear();
@@ -320,6 +336,7 @@ document.querySelectorAll('.choose').forEach(button => {
   button.addEventListener('click', () => {
     active = Number(button.dataset.id);
     select.value = String(active);
+
     chosen.clear();
     message.textContent = '';
     render();
@@ -329,6 +346,8 @@ document.querySelectorAll('.choose').forEach(button => {
     });
   });
 });
+
+/* ДЕМО-БРОНИРОВАНИЕ */
 
 bookButton.addEventListener('click', () => {
   const selected = tables.filter(table =>
@@ -351,4 +370,5 @@ bookButton.addEventListener('click', () => {
     `Реальная бронь и оплата не производятся.`;
 });
 
+// Первый запуск
 render();
