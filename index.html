@@ -1,19 +1,187 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SAVORÉ — Every Scene, Savored.</title>
-<link rel="stylesheet" href="style.css?v=8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SAVORÉ — Every Scene, Savored.</title>
+
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
+
 <body>
-<header><a href="#top" class="brand">SAVORÉ</a><nav><a href="#films">Киноужины</a><a href="#seats">Рассадка</a><a href="#about">О проекте</a></nav><a class="navbtn" href="#films">Выбрать вечер ↗</a></header>
-<main id="top">
-<section class="hero"><img src="assets/savore-original-logo.png" alt="Оригинальный логотип SAVORÉ"><div class="hero-bottom"><span>КИНО × ГАСТРОНОМИЯ × ЭМОЦИИ</span><span>EVERY SCENE, SAVORED.</span></div></section>
-<section class="intro"><p class="eyebrow">01 / АФИША КИНОУЖИНОВ</p><h1>Истории, которые<br><em>можно попробовать.</em></h1><p>Три мира. Три гастрономических путешествия. Выбирайте фильм, изучайте меню и бронируйте стол.</p></section>
-<section id="films" class="films"></section>
-<section class="seating" id="seats"><p class="eyebrow">02 / ВАШ СТОЛ</p><h2>Вечер начинается <em>с выбора стола.</em></h2><div class="seat-layout"><div class="seat-panel"><label for="movieSelect">Киноужин</label><select id="movieSelect"></select><div class="table-map"><div class="screen">ЭКРАН</div><svg class="table-arc" viewBox="0 0 800 400" aria-hidden="true"><path d="M95 110 Q400 555 705 110" fill="none" stroke="#8b6555" stroke-dasharray="6 9" opacity=".55"/></svg><div id="tableGrid" class="table-grid" aria-label="Выбор столов"></div></div><div class="legend"><span><i class="free"></i>Свободен</span><span><i class="picked"></i>Выбран</span><span><i class="busy"></i>Занят (демо)</span><span><i class="four"></i>4 гостя</span></div></div><div class="order"><p class="eyebrow">ВАША БРОНЬ</p><h3 id="orderMovie">Рататуй</h3><p id="orderPrice"></p><p id="orderTables">Столы не выбраны</p><p id="orderGuests">Гостей: 0</p><div class="total"><span>Итого</span><strong id="total">0 ₽</strong></div><button id="book" disabled>Подтвердить выбор</button><p class="muted">Учебный проект. Реальная бронь и оплата не производятся.</p><p id="message" aria-live="polite"></p></div></div></section>
-<footer id="about"><strong>SAVORÉ</strong><span>Every Scene, Savored.</span><span>Учебный концепт · 2026</span></footer>
-</main>
-<script src="script.js?v=8"></script>
-</body></html>
+
+  <!-- ШАПКА САЙТА -->
+  <header>
+    <a href="#top" class="brand">SAVORÉ</a>
+
+    <nav>
+      <a href="#films">Киноужины</a>
+      <a href="#seats">Рассадка</a>
+      <a href="#about">О проекте</a>
+    </nav>
+
+    <a class="navbtn" href="#films">
+      Выбрать вечер ↗
+    </a>
+  </header>
+
+  <main id="top">
+
+    <!-- ГЛАВНЫЙ ЭКРАН -->
+    <section class="hero">
+      <img
+        src="assets/savore-original-logo.png"
+        alt="Оригинальный логотип SAVORÉ"
+      >
+
+      <div class="hero-bottom">
+        <span>КИНО × ГАСТРОНОМИЯ × ЭМОЦИИ</span>
+        <span>EVERY SCENE, SAVORED.</span>
+      </div>
+    </section>
+
+    <!-- ВСТУПЛЕНИЕ -->
+    <section class="intro">
+      <p class="eyebrow">01 / АФИША КИНОУЖИНОВ</p>
+
+      <h1>
+        Истории, которые<br>
+        <em>можно попробовать.</em>
+      </h1>
+
+      <p>
+        Три мира. Три гастрономических путешествия.
+        Выбирайте фильм, изучайте меню и занимайте
+        своё место за столом.
+      </p>
+    </section>
+
+    <!-- КАРТОЧКИ ФИЛЬМОВ -->
+    <!-- Их создаёт script.js -->
+    <section id="films" class="films"></section>
+
+    <!-- РАССАДКА -->
+    <section class="seating" id="seats">
+
+      <p class="eyebrow">02 / ВАШЕ МЕСТО</p>
+
+      <h2>
+        Вечер начинается
+        <em>с выбора стола.</em>
+      </h2>
+
+      <div class="seat-layout">
+
+        <!-- ЛЕВАЯ ПАНЕЛЬ -->
+        <div class="seat-panel">
+
+          <label for="movieSelect">
+            Киноужин
+          </label>
+
+          <select id="movieSelect"></select>
+
+          <!-- СХЕМА ЗАЛА -->
+          <div class="hall">
+
+            <div class="screen">
+              ЭКРАН
+            </div>
+
+            <!--
+              ВАЖНО!
+              Именно сюда JavaScript добавляет
+              восемь интерактивных столов.
+            -->
+            <div
+              id="seatGrid"
+              class="table-map"
+            ></div>
+
+          </div>
+
+          <!-- ЛЕГЕНДА -->
+          <div class="legend">
+            <span>
+              <i class="free"></i>
+              Свободен
+            </span>
+
+            <span>
+              <i class="picked"></i>
+              Выбран
+            </span>
+
+            <span>
+              <i class="busy"></i>
+              Занят (демо)
+            </span>
+
+            <span>
+              <i style="background:#47416e;"></i>
+              4 места
+            </span>
+          </div>
+
+        </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ -->
+        <div class="order">
+
+          <p class="eyebrow">
+            ВАША БРОНЬ
+          </p>
+
+          <h3 id="orderMovie">
+            Рататуй
+          </h3>
+
+          <p id="orderPrice">
+            Стоимость: 4 900 ₽ / гость
+          </p>
+
+          <p id="orderSeats">
+            Столы не выбраны
+          </p>
+
+          <div class="total">
+            <span>Итого</span>
+            <strong id="total">0 ₽</strong>
+          </div>
+
+          <button id="book" disabled>
+            Подтвердить выбор
+          </button>
+
+          <p class="muted">
+            Учебный проект. Реальная бронь
+            и оплата не производятся.
+          </p>
+
+          <p
+            id="message"
+            aria-live="polite"
+          ></p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ПОДВАЛ -->
+    <footer id="about">
+      <strong>SAVORÉ</strong>
+      <span>Every Scene, Savored.</span>
+      <span>Учебный концепт • 2026</span>
+    </footer>
+
+  </main>
+
+  <!-- ПОДКЛЮЧЕНИЕ JAVASCRIPT -->
+  <script src="script.js?v=9"></script>
+
+</body>
+</html>
