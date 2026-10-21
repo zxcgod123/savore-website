@@ -7,7 +7,7 @@
   --text: #f6e9dc;
   --muted: #b49c92;
   --gold: #ead0aa;
-  --line: rgba(234, 208, 170, 0.25);
+  --line: rgba(234,208,170,.25);
   --green: #075848;
   --green-border: #269a82;
   --purple: #413d8e;
@@ -46,8 +46,6 @@ a {
 /* ШАПКА */
 
 header {
-  position: relative;
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -141,7 +139,7 @@ h3 {
 
 .intro h1 {
   margin: 35px 0;
-  font-size: clamp(42px, 6vw, 86px);
+  font-size: clamp(42px,6vw,86px);
   line-height: 1.15;
 }
 
@@ -185,8 +183,8 @@ h2 em {
 .poster img {
   display: block;
   width: 100%;
-  height: auto;
   min-height: 450px;
+  height: auto;
   object-fit: cover;
 }
 
@@ -195,14 +193,14 @@ h2 em {
   left: 20px;
   top: 20px;
   padding: 10px 14px;
-  background: rgba(25, 5, 9, 0.8);
+  background: rgba(25,5,9,.8);
   color: var(--gold);
   font-size: 11px;
 }
 
 .film-info h2 {
   margin: 18px 0;
-  font-size: clamp(35px, 4vw, 58px);
+  font-size: clamp(35px,4vw,58px);
 }
 
 .description {
@@ -277,23 +275,23 @@ h2 em {
   background: #fff0d8;
 }
 
-/* РАЗДЕЛ РАССАДКИ */
+/* РАССАДКА */
 
 .seating {
-  max-width: 1200px;
+  max-width: 1450px;
   margin: 0 auto;
   padding: 100px 30px 130px;
 }
 
 .seating > h2 {
   margin: 25px 0 50px;
-  font-size: clamp(40px, 5vw, 68px);
+  font-size: clamp(40px,5vw,68px);
   line-height: 1.2;
 }
 
 .seat-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2.1fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0,2.8fr) minmax(290px,1fr);
   gap: 24px;
   align-items: stretch;
 }
@@ -303,7 +301,7 @@ h2 em {
   min-width: 0;
   padding: 30px;
   border: 1px solid var(--line);
-  background: rgba(14, 3, 7, 0.25);
+  background: rgba(14,3,7,.25);
 }
 
 .seat-panel label {
@@ -317,12 +315,11 @@ h2 em {
   width: 100%;
   padding: 15px 18px;
   border: 1px solid var(--line);
-  border-radius: 0;
   background: #361018;
   color: #fff4e9;
 }
 
-/* ЗАЛ */
+/* SVG-СХЕМА */
 
 .hall {
   position: relative;
@@ -331,145 +328,106 @@ h2 em {
   overflow: hidden;
 }
 
-.screen {
-  position: absolute;
-  z-index: 3;
-  top: 26px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 36%;
-  padding: 8px 12px;
-  border: 1px solid #858578;
-  border-radius: 6px;
-  background: #484944;
-  color: #ffffff;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-/* СХЕМА СТОЛОВ */
-
-.table-map {
-  position: relative;
+.svg-table-map {
   display: block;
+  position: relative;
   width: 100%;
-  height: 500px;
-  min-height: 500px;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1000 / 590;
   background: #171717;
   overflow: hidden;
 }
 
-/* Пунктирная дуга */
-
-.table-map::before {
-  content: "";
-  position: absolute;
-  left: 11%;
-  top: 22%;
-  width: 78%;
-  height: 57%;
-  border: 1px dashed rgba(190, 190, 190, 0.35);
-  border-top: none;
-  border-radius: 0 0 50% 50%;
-  pointer-events: none;
+.svg-table-map::before {
+  display: none;
 }
 
-/* ОБЩИЕ СТИЛИ СТОЛОВ */
+.savore-hall-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
-.restaurant-table {
-  position: absolute;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 43px;
-  padding: 0;
-  border: 1px solid var(--green-border);
-  border-radius: 6px;
-  background: var(--green);
-  color: white;
+.svg-arc {
+  fill: none;
+  stroke: rgba(170,170,170,.45);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 6;
+}
+
+/* СТОЛЫ */
+
+.svg-table {
   cursor: pointer;
-  overflow: visible;
-  transition: background .2s, box-shadow .2s;
+  outline: none;
 }
 
-.table-number {
+.svg-table-body {
+  fill: var(--green);
+  stroke: var(--green-border);
+  stroke-width: 1.4;
+}
+
+.svg-chair {
+  fill: var(--green);
+  stroke: var(--green-border);
+  stroke-width: 1.2;
+}
+
+.svg-table-large .svg-table-body,
+.svg-table-large .svg-chair {
+  fill: var(--purple);
+  stroke: var(--purple-border);
+}
+
+.svg-table-number {
+  fill: white;
   font-family: 'DM Sans', Arial, sans-serif;
   font-size: 17px;
   font-weight: 700;
-  line-height: 1;
-}
-
-/* СТОЛЫ НА 4 ГОСТЯ */
-
-.restaurant-table.large {
-  width: 112px;
-  height: 38px;
-  background: var(--purple);
-  border-color: var(--purple-border);
-}
-
-/* КРУГЛЫЕ СТУЛЬЯ */
-
-.table-chairs {
-  position: absolute;
-  top: calc(100% + 7px);
-  left: 50%;
-  display: flex;
-  gap: 7px;
-  transform: translateX(-50%);
   pointer-events: none;
 }
 
-.table-chairs i {
-  display: block;
-  width: 19px;
-  height: 19px;
-  border: 1px solid var(--green-border);
-  border-radius: 50%;
-  background: var(--green);
+.svg-table.is-picked .svg-table-body,
+.svg-table.is-picked .svg-chair {
+  fill: var(--gold);
+  stroke: #fff0d7;
 }
 
-/* 4 стула сбоку у больших столов */
-
-.restaurant-table.large .table-chairs {
-  top: 50%;
-  left: -27px;
-  flex-direction: column;
-  gap: 5px;
-  transform: translateY(-50%);
+.svg-table.is-picked .svg-table-number {
+  fill: var(--bg);
 }
 
-.restaurant-table.large .table-chairs i {
-  background: var(--purple);
-  border-color: var(--purple-border);
-}
-
-/* ВЫБРАННЫЙ СТОЛ */
-
-.restaurant-table.picked {
-  background: var(--gold);
-  border-color: #fff0d7;
-  color: var(--bg);
-  box-shadow: 0 0 22px rgba(234, 208, 170, .35);
-}
-
-.restaurant-table.picked .table-chairs i {
-  background: var(--gold);
-  border-color: #fff0d7;
-}
-
-/* ЗАНЯТЫЙ СТОЛ */
-
-.restaurant-table.busy {
-  opacity: .45;
+.svg-table.is-busy {
+  opacity: .4;
   cursor: not-allowed;
 }
 
-.restaurant-table:hover:not(:disabled) {
-  box-shadow: 0 0 18px rgba(234, 208, 170, .3);
+.svg-table:not(.is-busy):hover .svg-table-body,
+.svg-table:focus-visible .svg-table-body {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+/* ЭКРАН */
+
+.hall > .screen {
+  position: absolute;
+  z-index: 3;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  max-width: 40%;
+  padding: 6px 12px;
+  border: 1px solid #858578;
+  border-radius: 6px;
+  background: #484944;
+  color: white;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 /* ЛЕГЕНДА */
@@ -640,43 +598,10 @@ footer strong {
     padding: 16px;
   }
 
-  .table-map {
-    height: 330px;
-    min-height: 330px;
-  }
-
-  .screen {
-    top: 15px;
+  .hall > .screen {
+    top: 12px;
     font-size: 11px;
-  }
-
-  .restaurant-table {
-    width: 42px;
-    height: 30px;
-  }
-
-  .restaurant-table.large {
-    width: 67px;
-    height: 27px;
-  }
-
-  .table-number {
-    font-size: 12px;
-  }
-
-  .table-chairs {
-    gap: 3px;
-    top: calc(100% + 4px);
-  }
-
-  .table-chairs i {
-    width: 11px;
-    height: 11px;
-  }
-
-  .restaurant-table.large .table-chairs {
-    left: -16px;
-    gap: 2px;
+    padding: 5px;
   }
 
   .course {
