@@ -1,8 +1,7 @@
 
-/* ==========================================
+/* =========================================
    SAVORÉ — ПОЛНЫЙ JAVASCRIPT
-   Фильмы, меню, рассадка, бронирование
-   ========================================== */
+   ========================================= */
 
 const films = [
   {
@@ -49,27 +48,23 @@ const films = [
   }
 ];
 
-// Форматирование стоимости
 const rub = number =>
   new Intl.NumberFormat('ru-RU').format(number) + ' ₽';
 
-// ==========================================
-// КАРТОЧКИ ФИЛЬМОВ
-// ==========================================
+/* КАРТОЧКИ ФИЛЬМОВ */
 
 const filmRoot = document.querySelector('.films');
 
 films.forEach((film, index) => {
-  const section = document.createElement('article');
-  section.className = 'film';
+  const article = document.createElement('article');
+  article.className = 'film';
 
-  section.innerHTML = `
+  article.innerHTML = `
     <div class="poster">
       <img
         src="${film.poster}"
-        alt="Постер: ${film.name}"
+        alt="Постер фильма ${film.name}"
         loading="lazy"
-        onerror="this.onerror=null;this.style.display='none'"
       >
       <span>${String(index + 1).padStart(2, '0')} / 03</span>
     </div>
@@ -86,7 +81,7 @@ films.forEach((film, index) => {
 
       <h3>Гастрономический сценарий</h3>
       <p class="hint">
-        Таймкоды примерные и используются для демонстрации.
+        Таймкоды примерные, для демонстрации.
       </p>
 
       <div class="courses">
@@ -109,19 +104,16 @@ films.forEach((film, index) => {
     </div>
   `;
 
-  filmRoot.appendChild(section);
+  filmRoot.appendChild(article);
 });
 
-// ==========================================
-// РАССАДКА И БРОНИРОВАНИЕ
-// ==========================================
+/* РАССАДКА */
 
 let active = 0;
 const chosen = new Set();
 
 const select = document.querySelector('#movieSelect');
 const grid = document.querySelector('#seatGrid');
-
 const orderMovie = document.querySelector('#orderMovie');
 const orderPrice = document.querySelector('#orderPrice');
 const orderSeats = document.querySelector('#orderSeats');
@@ -129,22 +121,25 @@ const totalElement = document.querySelector('#total');
 const bookButton = document.querySelector('#book');
 const message = document.querySelector('#message');
 
-// Положение столов на схеме
+/*
+  Позиции столов в процентах.
+  Угол поворота повторяет дугу.
+*/
+
 const tables = [
-  { id: 1, seats: 4, x: 12, y: 24, angle: -30 },
-  { id: 2, seats: 2, x: 22, y: 48, angle: -30 },
-  { id: 3, seats: 2, x: 34, y: 66, angle: -15 },
-  { id: 4, seats: 2, x: 46, y: 76, angle: 0 },
-  { id: 5, seats: 2, x: 58, y: 76, angle: 0 },
-  { id: 6, seats: 2, x: 70, y: 66, angle: 15 },
-  { id: 7, seats: 2, x: 82, y: 48, angle: 30 },
-  { id: 8, seats: 4, x: 92, y: 24, angle: 30 }
+  { id: 1, seats: 4, x: 13, y: 27, angle: -30 },
+  { id: 2, seats: 2, x: 23, y: 51, angle: -43 },
+  { id: 3, seats: 2, x: 35, y: 67, angle: -22 },
+  { id: 4, seats: 2, x: 46, y: 75, angle: -5 },
+  { id: 5, seats: 2, x: 58, y: 75, angle: 5 },
+  { id: 6, seats: 2, x: 70, y: 67, angle: 22 },
+  { id: 7, seats: 2, x: 82, y: 51, angle: 43 },
+  { id: 8, seats: 4, x: 89, y: 27, angle: 30 }
 ];
 
-// Стол №3 занят для демонстрации
+// Демонстрационно занят стол №3
 const occupied = new Set([3]);
 
-// Список фильмов
 films.forEach((film, index) => {
   select.add(
     new Option(
@@ -154,120 +149,42 @@ films.forEach((film, index) => {
   );
 });
 
-// Скрываем старую схему экрана, если она есть
-const oldScreen = document.querySelector('.seat-panel > .screen');
-
-if (oldScreen) {
-  oldScreen.style.display = 'none';
-}
-
-// ==========================================
-// СОЗДАНИЕ СХЕМЫ ЗАЛА
-// ==========================================
-
-function setupMap() {
-  grid.className = 'table-map';
-
-  // Основные стили заданы непосредственно,
-  // чтобы столы не исчезали из-за старого CSS
-  Object.assign(grid.style, {
-    position: 'relative',
-    display: 'block',
-    width: '100%',
-    height: '430px',
-    minHeight: '430px',
-    overflow: 'hidden',
-    boxSizing: 'border-box'
-  });
-}
+/* СОЗДАНИЕ СТОЛА */
 
 function createTable(table) {
   const button = document.createElement('button');
-
-  button.type = 'button';
-  button.className = 'restaurant-table';
 
   const isLarge = table.seats === 4;
   const isPicked = chosen.has(table.id);
   const isBusy = occupied.has(table.id);
 
+  button.type = 'button';
+  button.className = 'restaurant-table';
+
   if (isLarge) button.classList.add('large');
   if (isPicked) button.classList.add('picked');
   if (isBusy) button.classList.add('busy');
 
-  const background = isBusy
-    ? '#473039'
-    : isPicked
-      ? '#ead0aa'
-      : isLarge
-        ? '#47416e'
-        : '#24574b';
+  button.style.left = table.x + '%';
+  button.style.top = table.y + '%';
+  button.style.transform =
+    `translate(-50%, -50%) rotate(${table.angle}deg)`;
 
-  const borderColor = isBusy
-    ? '#684d55'
-    : isPicked
-      ? '#fff1d9'
-      : isLarge
-        ? '#aaa0dd'
-        : '#8bbba9';
-
-  Object.assign(button.style, {
-    position: 'absolute',
-    display: 'flex',
-    visibility: 'visible',
-    opacity: isBusy ? '0.55' : '1',
-    zIndex: '10',
-    left: table.x + '%',
-    top: table.y + '%',
-    transform:
-      `translate(-50%, -50%) rotate(${table.angle}deg)`,
-    width: isLarge ? '68px' : '65px',
-    height: isLarge ? '88px' : '48px',
-    padding: '4px',
-    boxSizing: 'border-box',
-    background: background,
-    color: isPicked ? '#21070b' : '#ffffff',
-    border: `2px solid ${borderColor}`,
-    borderRadius: '9px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'column',
-    gap: '5px',
-    cursor: isBusy ? 'not-allowed' : 'pointer',
-    fontFamily: 'Arial, sans-serif',
-    textAlign: 'center',
-    boxShadow: isPicked
-      ? '0 0 22px rgba(234,208,170,0.45)'
-      : 'none'
-  });
+  const chairs = Array.from(
+    { length: table.seats },
+    () => '<i></i>'
+  ).join('');
 
   button.innerHTML = `
-    <span style="
-      display:block;
-      font-size:17px;
-      font-weight:700;
-      line-height:1;
-    ">${table.id}</span>
-    <small style="
-      display:block;
-      font-size:9px;
-      white-space:nowrap;
-    ">${table.seats} места</small>
+    <span class="table-number">${table.id}</span>
+    <span class="table-chairs">${chairs}</span>
   `;
 
   button.title =
-    `Стол №${table.id} — ${table.seats} места`;
+    `Стол №${table.id}, ${table.seats} места`;
 
-  button.setAttribute(
-    'aria-label',
-    `Стол №${table.id}, ${table.seats} места`
-  );
-
-  button.setAttribute(
-    'aria-pressed',
-    String(isPicked)
-  );
-
+  button.setAttribute('aria-label', button.title);
+  button.setAttribute('aria-pressed', String(isPicked));
   button.disabled = isBusy;
 
   button.addEventListener('click', () => {
@@ -284,9 +201,7 @@ function createTable(table) {
   return button;
 }
 
-// ==========================================
-// ОБНОВЛЕНИЕ СХЕМЫ И СТОИМОСТИ
-// ==========================================
+/* ОБНОВЛЕНИЕ СХЕМЫ */
 
 function render() {
   const film = films[active];
@@ -295,60 +210,48 @@ function render() {
   orderPrice.textContent =
     `Стоимость: ${rub(film.price)} / гость`;
 
-  setupMap();
-
+  grid.className = 'table-map';
   grid.innerHTML = '';
 
-  // Добавляем столы
   tables.forEach(table => {
     grid.appendChild(createTable(table));
   });
 
-  // Выбранные столы
   const selected = tables.filter(table =>
     chosen.has(table.id)
   );
 
-  // Количество гостей
   const guests = selected.reduce(
     (sum, table) => sum + table.seats,
     0
   );
 
-  // Итоговая стоимость
-  const total = guests * film.price;
-
   orderSeats.textContent = selected.length
     ? `Столы: ${selected.map(t => '№' + t.id).join(', ')} · Гостей: ${guests}`
     : 'Столы не выбраны';
 
-  totalElement.textContent = rub(total);
+  totalElement.textContent =
+    rub(guests * film.price);
 
   bookButton.disabled = selected.length === 0;
 }
 
-// ==========================================
-// ПЕРЕКЛЮЧЕНИЕ КИНОУЖИНА
-// ==========================================
+/* ПЕРЕКЛЮЧЕНИЕ ФИЛЬМА */
 
 select.addEventListener('change', () => {
   active = Number(select.value);
-
   chosen.clear();
   message.textContent = '';
-
   render();
 });
 
-// Кнопки под карточками фильмов
 document.querySelectorAll('.choose').forEach(button => {
   button.addEventListener('click', () => {
     active = Number(button.dataset.id);
-
     select.value = String(active);
+
     chosen.clear();
     message.textContent = '';
-
     render();
 
     document.querySelector('#seats').scrollIntoView({
@@ -357,16 +260,14 @@ document.querySelectorAll('.choose').forEach(button => {
   });
 });
 
-// ==========================================
-// ДЕМОНСТРАЦИОННОЕ БРОНИРОВАНИЕ
-// ==========================================
+/* ДЕМО-БРОНИРОВАНИЕ */
 
 bookButton.addEventListener('click', () => {
   const selected = tables.filter(table =>
     chosen.has(table.id)
   );
 
-  if (selected.length === 0) return;
+  if (!selected.length) return;
 
   const guests = selected.reduce(
     (sum, table) => sum + table.seats,
@@ -374,7 +275,7 @@ bookButton.addEventListener('click', () => {
   );
 
   message.textContent =
-    `Ваш выбор подтверждён (демо). ` +
+    `Выбор подтверждён (демо). ` +
     `Киноужин: ${films[active].name}. ` +
     `Столы: ${selected.map(t => '№' + t.id).join(', ')}. ` +
     `Гостей: ${guests}. ` +
@@ -382,5 +283,4 @@ bookButton.addEventListener('click', () => {
     `Реальная бронь и оплата не производятся.`;
 });
 
-// Первый запуск
 render();
