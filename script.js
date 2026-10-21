@@ -1,4 +1,9 @@
 
+/* ==========================================
+   SAVORÉ — ПОЛНЫЙ JAVASCRIPT
+   Фильмы, меню, рассадка, бронирование
+   ========================================== */
+
 const films = [
   {
     name: 'Рататуй',
@@ -44,11 +49,14 @@ const films = [
   }
 ];
 
-// Форматирование цен
-const rub = n =>
-  new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
+// Форматирование стоимости
+const rub = number =>
+  new Intl.NumberFormat('ru-RU').format(number) + ' ₽';
 
-// Создание карточек фильмов
+// ==========================================
+// КАРТОЧКИ ФИЛЬМОВ
+// ==========================================
+
 const filmRoot = document.querySelector('.films');
 
 films.forEach((film, index) => {
@@ -61,7 +69,7 @@ films.forEach((film, index) => {
         src="${film.poster}"
         alt="Постер: ${film.name}"
         loading="lazy"
-        onerror="this.onerror=null;this.style.display='none';this.parentElement.classList.add('poster-fallback')"
+        onerror="this.onerror=null;this.style.display='none'"
       >
       <span>${String(index + 1).padStart(2, '0')} / 03</span>
     </div>
@@ -77,10 +85,8 @@ films.forEach((film, index) => {
       </div>
 
       <h3>Гастрономический сценарий</h3>
-
       <p class="hint">
-        Таймкоды примерные, для демонстрации.
-        Не синхронизированы с конкретной версией фильма.
+        Таймкоды примерные и используются для демонстрации.
       </p>
 
       <div class="courses">
@@ -106,28 +112,39 @@ films.forEach((film, index) => {
   filmRoot.appendChild(section);
 });
 
-// Настройки бронирования
+// ==========================================
+// РАССАДКА И БРОНИРОВАНИЕ
+// ==========================================
+
 let active = 0;
-let chosen = new Set();
+const chosen = new Set();
 
 const select = document.querySelector('#movieSelect');
 const grid = document.querySelector('#seatGrid');
 
-// Расположение столов полукругом
+const orderMovie = document.querySelector('#orderMovie');
+const orderPrice = document.querySelector('#orderPrice');
+const orderSeats = document.querySelector('#orderSeats');
+const totalElement = document.querySelector('#total');
+const bookButton = document.querySelector('#book');
+const message = document.querySelector('#message');
+
+// Положение столов на схеме
 const tables = [
-  { id: 1, seats: 4, x: 12, y: 22, angle: -30 },
-  { id: 2, seats: 2, x: 23, y: 51, angle: -42 },
-  { id: 3, seats: 2, x: 35, y: 69, angle: -20 },
-  { id: 4, seats: 2, x: 46, y: 77, angle: -5 },
-  { id: 5, seats: 2, x: 57, y: 77, angle: 5 },
-  { id: 6, seats: 2, x: 69, y: 69, angle: 20 },
-  { id: 7, seats: 2, x: 81, y: 51, angle: 42 },
-  { id: 8, seats: 4, x: 92, y: 22, angle: 30 }
+  { id: 1, seats: 4, x: 12, y: 24, angle: -30 },
+  { id: 2, seats: 2, x: 22, y: 48, angle: -30 },
+  { id: 3, seats: 2, x: 34, y: 66, angle: -15 },
+  { id: 4, seats: 2, x: 46, y: 76, angle: 0 },
+  { id: 5, seats: 2, x: 58, y: 76, angle: 0 },
+  { id: 6, seats: 2, x: 70, y: 66, angle: 15 },
+  { id: 7, seats: 2, x: 82, y: 48, angle: 30 },
+  { id: 8, seats: 4, x: 92, y: 24, angle: 30 }
 ];
 
-// Демонстрационно занятые столы
+// Стол №3 занят для демонстрации
 const occupied = new Set([3]);
 
+// Список фильмов
 films.forEach((film, index) => {
   select.add(
     new Option(
@@ -137,74 +154,154 @@ films.forEach((film, index) => {
   );
 });
 
-// Отрисовка рассадки и заказа
+// Скрываем старую схему экрана, если она есть
+const oldScreen = document.querySelector('.seat-panel > .screen');
+
+if (oldScreen) {
+  oldScreen.style.display = 'none';
+}
+
+// ==========================================
+// СОЗДАНИЕ СХЕМЫ ЗАЛА
+// ==========================================
+
+function setupMap() {
+  grid.className = 'table-map';
+
+  // Основные стили заданы непосредственно,
+  // чтобы столы не исчезали из-за старого CSS
+  Object.assign(grid.style, {
+    position: 'relative',
+    display: 'block',
+    width: '100%',
+    height: '430px',
+    minHeight: '430px',
+    overflow: 'hidden',
+    boxSizing: 'border-box'
+  });
+}
+
+function createTable(table) {
+  const button = document.createElement('button');
+
+  button.type = 'button';
+  button.className = 'restaurant-table';
+
+  const isLarge = table.seats === 4;
+  const isPicked = chosen.has(table.id);
+  const isBusy = occupied.has(table.id);
+
+  if (isLarge) button.classList.add('large');
+  if (isPicked) button.classList.add('picked');
+  if (isBusy) button.classList.add('busy');
+
+  const background = isBusy
+    ? '#473039'
+    : isPicked
+      ? '#ead0aa'
+      : isLarge
+        ? '#47416e'
+        : '#24574b';
+
+  const borderColor = isBusy
+    ? '#684d55'
+    : isPicked
+      ? '#fff1d9'
+      : isLarge
+        ? '#aaa0dd'
+        : '#8bbba9';
+
+  Object.assign(button.style, {
+    position: 'absolute',
+    display: 'flex',
+    visibility: 'visible',
+    opacity: isBusy ? '0.55' : '1',
+    zIndex: '10',
+    left: table.x + '%',
+    top: table.y + '%',
+    transform:
+      `translate(-50%, -50%) rotate(${table.angle}deg)`,
+    width: isLarge ? '68px' : '65px',
+    height: isLarge ? '88px' : '48px',
+    padding: '4px',
+    boxSizing: 'border-box',
+    background: background,
+    color: isPicked ? '#21070b' : '#ffffff',
+    border: `2px solid ${borderColor}`,
+    borderRadius: '9px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: '5px',
+    cursor: isBusy ? 'not-allowed' : 'pointer',
+    fontFamily: 'Arial, sans-serif',
+    textAlign: 'center',
+    boxShadow: isPicked
+      ? '0 0 22px rgba(234,208,170,0.45)'
+      : 'none'
+  });
+
+  button.innerHTML = `
+    <span style="
+      display:block;
+      font-size:17px;
+      font-weight:700;
+      line-height:1;
+    ">${table.id}</span>
+    <small style="
+      display:block;
+      font-size:9px;
+      white-space:nowrap;
+    ">${table.seats} места</small>
+  `;
+
+  button.title =
+    `Стол №${table.id} — ${table.seats} места`;
+
+  button.setAttribute(
+    'aria-label',
+    `Стол №${table.id}, ${table.seats} места`
+  );
+
+  button.setAttribute(
+    'aria-pressed',
+    String(isPicked)
+  );
+
+  button.disabled = isBusy;
+
+  button.addEventListener('click', () => {
+    if (chosen.has(table.id)) {
+      chosen.delete(table.id);
+    } else {
+      chosen.add(table.id);
+    }
+
+    message.textContent = '';
+    render();
+  });
+
+  return button;
+}
+
+// ==========================================
+// ОБНОВЛЕНИЕ СХЕМЫ И СТОИМОСТИ
+// ==========================================
+
 function render() {
   const film = films[active];
 
-  document.querySelector('#orderMovie').textContent =
-    film.name;
-
-  document.querySelector('#orderPrice').textContent =
+  orderMovie.textContent = film.name;
+  orderPrice.textContent =
     `Стоимость: ${rub(film.price)} / гость`;
 
+  setupMap();
+
   grid.innerHTML = '';
-  grid.className = 'table-map';
 
+  // Добавляем столы
   tables.forEach(table => {
-    const button = document.createElement('button');
-
-    button.type = 'button';
-    button.className = 'restaurant-table';
-
-    if (table.seats === 4) {
-      button.classList.add('large');
-    }
-
-    if (chosen.has(table.id)) {
-      button.classList.add('picked');
-    }
-
-    if (occupied.has(table.id)) {
-      button.classList.add('busy');
-    }
-
-    button.style.left = table.x + '%';
-    button.style.top = table.y + '%';
-
-    button.style.transform =
-      `translate(-50%, -50%) rotate(${table.angle}deg)`;
-
-    button.innerHTML = `
-      <span>${table.id}</span>
-      <small>${table.seats} места</small>
-    `;
-
-    button.title =
-      `Стол №${table.id}, ${table.seats} места`;
-
-    button.setAttribute(
-      'aria-label',
-      `Стол №${table.id}, ${table.seats} места`
-    );
-
-    button.setAttribute(
-      'aria-pressed',
-      chosen.has(table.id)
-    );
-
-    button.disabled = occupied.has(table.id);
-
-    button.onclick = () => {
-      if (chosen.has(table.id)) {
-        chosen.delete(table.id);
-      } else {
-        chosen.add(table.id);
-      }
-
-      render();
-    };
-
-    grid.appendChild(button);
+    grid.appendChild(createTable(table));
   });
 
   // Выбранные столы
@@ -218,66 +315,72 @@ function render() {
     0
   );
 
-  // Общая стоимость
+  // Итоговая стоимость
   const total = guests * film.price;
 
-  document.querySelector('#orderSeats').textContent =
-    selected.length
-      ? `Столы: ${selected.map(t => '№' + t.id).join(', ')} · ${guests} гостей`
-      : 'Столы не выбраны';
+  orderSeats.textContent = selected.length
+    ? `Столы: ${selected.map(t => '№' + t.id).join(', ')} · Гостей: ${guests}`
+    : 'Столы не выбраны';
 
-  document.querySelector('#total').textContent =
-    rub(total);
+  totalElement.textContent = rub(total);
 
-  document.querySelector('#book').disabled =
-    selected.length === 0;
+  bookButton.disabled = selected.length === 0;
 }
 
-// Переключение фильма
-select.onchange = () => {
-  active = Number(select.value);
-  chosen.clear();
+// ==========================================
+// ПЕРЕКЛЮЧЕНИЕ КИНОУЖИНА
+// ==========================================
 
-  document.querySelector('#message').textContent = '';
+select.addEventListener('change', () => {
+  active = Number(select.value);
+
+  chosen.clear();
+  message.textContent = '';
 
   render();
-};
+});
 
-// Кнопки выбора стола под фильмами
+// Кнопки под карточками фильмов
 document.querySelectorAll('.choose').forEach(button => {
-  button.onclick = () => {
+  button.addEventListener('click', () => {
     active = Number(button.dataset.id);
-    select.value = active;
 
+    select.value = String(active);
     chosen.clear();
-
-    document.querySelector('#message').textContent = '';
+    message.textContent = '';
 
     render();
 
     document.querySelector('#seats').scrollIntoView({
       behavior: 'smooth'
     });
-  };
+  });
 });
 
-// Демонстрационное подтверждение бронирования
-document.querySelector('#book').onclick = () => {
+// ==========================================
+// ДЕМОНСТРАЦИОННОЕ БРОНИРОВАНИЕ
+// ==========================================
+
+bookButton.addEventListener('click', () => {
   const selected = tables.filter(table =>
     chosen.has(table.id)
   );
+
+  if (selected.length === 0) return;
 
   const guests = selected.reduce(
     (sum, table) => sum + table.seats,
     0
   );
 
-  document.querySelector('#message').textContent =
-    `Демо-бронирование оформлено: ${films[active].name}. ` +
+  message.textContent =
+    `Ваш выбор подтверждён (демо). ` +
+    `Киноужин: ${films[active].name}. ` +
     `Столы: ${selected.map(t => '№' + t.id).join(', ')}. ` +
-    `Количество гостей: ${guests}. ` +
-    `Это учебный проект, реальная бронь не производится.`;
-};
+    `Гостей: ${guests}. ` +
+    `Итого: ${rub(guests * films[active].price)}. ` +
+    `Реальная бронь и оплата не производятся.`;
+});
 
 // Первый запуск
 render();
