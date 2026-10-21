@@ -46,10 +46,13 @@ const films = [
   }
 ];
 
+// Форматирование цены
 const rub = number =>
   new Intl.NumberFormat('ru-RU').format(number) + ' ₽';
 
-/* КАРТОЧКИ ФИЛЬМОВ */
+/* =========================================
+   КАРТОЧКИ ФИЛЬМОВ
+   ========================================= */
 
 const filmRoot = document.querySelector('.films');
 
@@ -106,7 +109,9 @@ films.forEach((film, index) => {
   filmRoot.appendChild(article);
 });
 
-/* БРОНИРОВАНИЕ */
+/* =========================================
+   БРОНИРОВАНИЕ
+   ========================================= */
 
 let active = 0;
 const chosen = new Set();
@@ -123,8 +128,9 @@ const message = document.querySelector('#message');
 const NS = 'http://www.w3.org/2000/svg';
 
 /*
-  Столы №1 и №8 исправлены.
-  Столы №2–7 не изменены.
+  Столы №1 и №8 — четыре места.
+  Столы №2–7 — два места.
+  Расположение остальных столов не изменено.
 */
 
 const tables = [
@@ -138,9 +144,10 @@ const tables = [
   { id: 8, seats: 4, x: 845, y: 267, angle: -61 }
 ];
 
-// Все столы свободны, как на образце
+// Все столы свободны в демонстрационной версии
 const occupied = new Set();
 
+// Заполняем список киноужинов
 films.forEach((film, index) => {
   select.add(
     new Option(
@@ -149,6 +156,10 @@ films.forEach((film, index) => {
     )
   );
 });
+
+/* =========================================
+   СОЗДАНИЕ SVG-ЭЛЕМЕНТОВ
+   ========================================= */
 
 function makeSvg(tag, attributes = {}) {
   const element = document.createElementNS(NS, tag);
@@ -159,6 +170,10 @@ function makeSvg(tag, attributes = {}) {
 
   return element;
 }
+
+/* =========================================
+   СОЗДАНИЕ СТОЛА И СТУЛЬЕВ
+   ========================================= */
 
 function createTable(table) {
   const large = table.seats === 4;
@@ -182,7 +197,7 @@ function createTable(table) {
   const width = large ? 112 : 70;
   const height = large ? 38 : 43;
 
-  // Стол
+  // Прямоугольник стола
   group.appendChild(
     makeSvg('rect', {
       class: 'svg-table-body',
@@ -206,12 +221,12 @@ function createTable(table) {
   group.appendChild(number);
 
   /*
-    ИСПРАВЛЕНИЕ ТОЛЬКО СТОЛОВ №1 И №8
+    СТУЛЬЯ
 
-    №1: стулья слева, как на образце.
-    №8: стулья справа, как на образце.
+    У столов №1 и №8 четыре стула
+    вдоль длинной стороны.
 
-    Столы №2–7 работают по старой схеме.
+    У столов №2–7 два стула.
   */
 
   if (large) {
@@ -221,11 +236,8 @@ function createTable(table) {
       group.appendChild(
         makeSvg('circle', {
           class: 'svg-chair',
-
-          // Переносим стулья на внешнюю сторону
-          cx: -width / 2 - 19,
-
-          cy: offset,
+          cx: offset,
+          cy: height / 2 + 15,
           r: 10
         })
       );
@@ -243,6 +255,7 @@ function createTable(table) {
     });
   }
 
+  // Выбор стола
   function toggle() {
     if (busy) return;
 
@@ -270,6 +283,10 @@ function createTable(table) {
   return group;
 }
 
+/* =========================================
+   СХЕМА ЗАЛА
+   ========================================= */
+
 function buildHall() {
   const svg = makeSvg('svg', {
     class: 'savore-hall-svg',
@@ -293,6 +310,10 @@ function buildHall() {
 
   return svg;
 }
+
+/* =========================================
+   ОБНОВЛЕНИЕ СХЕМЫ И СТОИМОСТИ
+   ========================================= */
 
 function render() {
   const film = films[active];
@@ -323,7 +344,9 @@ function render() {
   bookButton.disabled = selected.length === 0;
 }
 
-/* ПЕРЕКЛЮЧЕНИЕ ФИЛЬМА */
+/* =========================================
+   ПЕРЕКЛЮЧЕНИЕ ФИЛЬМА
+   ========================================= */
 
 select.addEventListener('change', () => {
   active = Number(select.value);
@@ -347,7 +370,9 @@ document.querySelectorAll('.choose').forEach(button => {
   });
 });
 
-/* ДЕМО-БРОНИРОВАНИЕ */
+/* =========================================
+   ДЕМОНСТРАЦИОННОЕ БРОНИРОВАНИЕ
+   ========================================= */
 
 bookButton.addEventListener('click', () => {
   const selected = tables.filter(table =>
